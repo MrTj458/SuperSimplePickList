@@ -32,6 +32,7 @@ def pick_list(request):
                 pl[product['product_id']] = {
                     'name': product['name'],
                     'product_id': product['product_id'],
+                    'images': requests.get(f'https://{shop.name}/admin/api/2020-04/products/{product["product_id"]}/images.json?fields=src', headers={'X-Shopify-Access-Token': shop.access_token}).json(),
                     'variants': {}
                 }
 
@@ -71,7 +72,7 @@ def auth(request):
     shop_list = Shop.objects.filter(name=shop_name)
 
     nonce = uuid4()
-    scope = 'read_orders'
+    scope = 'read_orders,read_products'
 
     # Check if the shop has been created before
     if len(shop_list) == 0:
@@ -82,7 +83,7 @@ def auth(request):
 
     shop.save()
 
-    url = f"https://{shop_name}/admin/oauth/authorize?client_id={os.environ.get('SHOPIFY_API_KEY')}&scope={scope}&redirect_uri=https://d2cbd1733589.ngrok.io/app/authcallback&state={nonce}"
+    url = f"https://{shop_name}/admin/oauth/authorize?client_id={os.environ.get('SHOPIFY_API_KEY')}&scope={scope}&redirect_uri=https://6756426a3ae1.ngrok.io/app/authcallback&state={nonce}"
 
     return redirect(url)
 
@@ -119,7 +120,7 @@ def auth_callback(request):
         json={
             'webhook': {
                 'topic': 'app/uninstalled',
-                'address': 'https://d2cbd1733589.ngrok.io/app/uninstalled/',
+                'address': 'https://6756426a3ae1.ngrok.io/app/uninstalled/',
                 'format': 'json',
             }
         },

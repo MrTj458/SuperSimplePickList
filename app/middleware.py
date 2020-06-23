@@ -13,13 +13,16 @@ def check_hmac(get_response):
                 hmac = request.GET.get('hmac')
 
                 if request.GET.getlist('ids[]') == []:
-                    # Check hmac
+                    # Normal request
+
                     params = request.GET.copy()  # Copy query to make it mutable
                     params.pop('hmac')  # remove hmac from query
                     # turn the query back to a url from dict
                     params = urlencode(params)
                 else:
+                    # Bulk admin button selected.
                     # Put the id's in the format shopify wants
+
                     ids = request.GET.getlist('ids[]')
                     ids = str(ids).replace("'", '"')
                     params = f'ids={ids}&locale=en&session={request.GET.get("session")}&shop={request.GET.get("shop")}&timestamp={request.GET.get("timestamp")}'

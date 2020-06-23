@@ -10,8 +10,43 @@ from .models import Shop
 
 
 def pick_list(request):
-    """Todo"""
-    return HttpResponse('List!')
+    """Get all of the products and create the pick list"""
+    shop = Shop.objects.get(name=request.GET.get('shop'))
+    ids = ','.join(request.GET.getlist('ids[]'))  # Format id's
+
+    # Make request for orders
+    res = requests.get(
+        f'https://{shop.name}/admin/api/2020-04/orders.json?ids={ids}',
+        headers={
+            'X-Shopify-Access-Token': shop.access_token
+        }
+    )
+    orders = res.json()['orders']
+
+    # Create list
+    pl = {}
+    for order in orders:
+        for product in order['line_items']:
+            if pl.get(product['product_id']) is None:
+                # Add product to pick list
+                pl[product['product_id']] = {
+                    'name': product['name'],
+                    'product_id': product['product_id'],
+                    'variants': {}
+                }
+
+            if pl.get(product['product_id'])['variants'].get(product['variant_id']) is None:
+                # Add variant to pick list
+                pl[product['product_id']]['variants'][product['variant_id']] = {
+                    'title': product['variant_title'],
+                    'quantity': product['quantity'],
+                }
+            else:
+                # Variant already in list, increment quantity
+                pl[product['product_id']]['variants'][product['variant_id']
+                                                      ]['quantity'] += product['quantity']
+
+    return render(request, 'app/list.html', {'pick_list': pl})
 
 
 def app(request):

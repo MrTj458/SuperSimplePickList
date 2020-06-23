@@ -30,7 +30,7 @@ def pick_list(request):
             if pl.get(product['product_id']) is None:
                 # Add product to pick list
                 pl[product['product_id']] = {
-                    'name': product['name'],
+                    'title': product['title'],
                     'product_id': product['product_id'],
                     'images': requests.get(f'https://{shop.name}/admin/api/2020-04/products/{product["product_id"]}/images.json?fields=src', headers={'X-Shopify-Access-Token': shop.access_token}).json(),
                     'variants': {}
@@ -40,6 +40,7 @@ def pick_list(request):
                 # Add variant to pick list
                 pl[product['product_id']]['variants'][product['variant_id']] = {
                     'title': product['variant_title'],
+                    'sku': product['sku'],
                     'quantity': product['quantity'],
                 }
             else:

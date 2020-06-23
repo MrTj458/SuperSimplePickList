@@ -9,6 +9,11 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Shop
 
 
+def pick_list(request):
+    """Todo"""
+    return HttpResponse('List!')
+
+
 def app(request):
     """Main app page"""
     shop_name = request.GET.get('shop')
@@ -73,7 +78,7 @@ def auth_callback(request):
     shop.scope = scope
     shop.save()
 
-    # Setup the app/uninstalled web hook
+    # Setup the app/uninstalled webhook
     res = requests.post(
         f'https://{shop.name}/admin/api/2020-04/webhooks.json',
         json={
@@ -83,7 +88,8 @@ def auth_callback(request):
                 'format': 'json',
             }
         },
-        headers={'X-Shopify-Access-Token': shop.access_token})
+        headers={'X-Shopify-Access-Token': shop.access_token}
+    )
 
     # Return to the index page as an embedded page on shopify.
     return redirect(f'https://{shop.name}/admin/apps/{os.environ.get("SHOPIFY_API_KEY")}')
